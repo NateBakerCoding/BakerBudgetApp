@@ -1,0 +1,168 @@
+/* src/styles.css */
+:root {
+  /* Catppuccin Mocha Palette */
+  --rosewater: #f5e0dc;
+  --flamingo: #f2cdcd;
+  --pink: #f5c2e7;
+  --mauve: #cba6f7; /* Primary Accent */
+  --red: #f38ba8;   /* Errors */
+  --maroon: #eba0ac;
+  --peach: #fab387; /* Secondary Accent / Warnings */
+  --yellow: #f9e2af;
+  --green: #a6e3a1; /* Success / Credits */
+  --teal: #94e2d5;
+  --sky: #89dceb;
+  --sapphire: #74c7ec;
+  --blue: #89b4fa;   /* Links / Interactive */
+  --lavender: #b4befe;
+  --text: #cdd6f4;
+  --subtext1: #bac2de;
+  --subtext0: #a6adc8;
+  --overlay2: #9399b2;
+  --overlay1: #7f849c;
+  --overlay0: #6c7086;
+  --surface2: #585b70;
+  --surface1: #45475a; /* Cards, inputs background */
+  --surface0: #313244; /* Slightly darker surface */
+  --base: #1e1e2e;     /* Main page background */
+  --mantle: #181825;   /* Slightly darker elements or hover */
+  --crust: #11111b;    /* Borders, very dark elements */
+
+  /* UI Variables */
+  --font-family-sans-serif: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-family-monospace: 'JetBrains Mono', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  --border-radius-small: 4px;
+  --border-radius-medium: 8px;
+  --border-radius-large: 12px;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family-monospace); /* Default to JetBrains Mono */
+  background-color: var(--base);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+body {
+  padding: 20px; /* Add some padding around the whole page */
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--mauve); /* Use Mauve for headings */
+  font-weight: 700;
+}
+
+h1 {
+  font-size: 2.2em;
+  text-align: center;
+  margin-bottom: 1.5em;
+  color: var(--pink); /* Make H1 stand out */
+}
+
+h2 {
+  font-size: 1.6em;
+  border-bottom: 2px solid var(--surface0);
+  padding-bottom: 0.3em;
+  margin-top: 2em;
+  margin-bottom: 1em;
+}
+
+h3 {
+  font-size: 1.3em;
+  color: var(--lavender);
+}
+h4 {
+  font-size: 1.1em;
+  color: var(--sky);
+}
+
+
+a {
+  color: var(--blue);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--sapphire);
+  text-decoration: underline;
+}
+
+pre {
+  background-color: var(--mantle);
+  border: 1px solid var(--crust);
+  padding: 10px;
+  border-radius: var(--border-radius-medium);
+  color: var(--subtext1);
+  font-family: var(--font-family-monospace);
+  font-size: 0.9em;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+code {
+  background-color: var(--surface0);
+  color: var(--rosewater);
+  padding: 0.2em 0.4em;
+  border-radius: var(--border-radius-small);
+  font-family: var(--font-family-monospace);
+  font-size: 0.9em;
+}
+
+/* General form styling */
+label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--subtext0);
+  font-weight: 700; /* Bold labels */
+}
+
+input[type="text"],
+input[type="date"] {
+  background-color: var(--surface1);
+  color: var(--text);
+  border: 1px solid var(--surface0);
+  padding: 10px 12px;
+  border-radius: var(--border-radius-medium);
+  font-family: var(--font-family-monospace);
+  font-size: 1em;
+  width: 100%;
+  box-sizing: border-box; /* Important for width: 100% */
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+input[type="text"]:focus,
+input[type="date"]:focus {
+  border-color: var(--mauve);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--mauve-transparent, rgba(203, 166, 247, 0.3)); /* Mauve with transparency */
+}
+
+button {
+  font-family: var(--font-family-monospace);
+  font-weight: 700; /* Bold button text */
+  padding: 10px 18px;
+  border: none;
+  border-radius: var(--border-radius-medium);
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+}
+button:hover {
+  transform: translateY(-1px);
+}
+button:active {
+  transform: translateY(0px);
+}
+button:disabled {
+  background-color: var(--surface0) !important;
+  color: var(--overlay0) !important;
+  cursor: not-allowed;
+  transform: translateY(0px);
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--surface0);
+  margin: 2em 0;
+}
