@@ -1,0 +1,113 @@
+<!-- src/app/pages/all-info/all-info.component.html -->
+<div class="app-container">
+  <h1>SimpleFin Raw Data Viewer</h1>
+
+  <div class="input-group" *ngIf="!hasStoredAccessDetails">
+    <label for="setupToken">Enter One-Time Setup Token:</label>
+    <input type="text" id="setupToken" [(ngModel)]="setupToken" placeholder="Your Base64 Setup Token">
+    <p *ngIf="!setupToken && !hasStoredAccessDetails" style="font-size: 0.9em; color: var(--subtext0); margin-top: 5px;">
+      A setup token is needed to get an initial Access URL.
+    </p>
+  </div>
+  <div *ngIf="hasStoredAccessDetails && dataService.parsedBaseUrl" class="stored-url-info">
+    <p>Using stored Access URL: <code>{{ dataService.parsedBaseUrl }}</code></p>
+    <p style="font-size: 0.8em;">
+        (If this fails or you need to use a different token, clear stored URL below and re-enter token.)
+    </p>
+  </div>
+
+
+  <div class="action-buttons">
+    <button class="btn-primary" (click)="handleDataOperation()" [disabled]="isLoading">
+      {{ isLoading ? 'Loading...' : (hasStoredAccessDetails ? 'Refresh Data (force full range)' : 'Get Access & Data') }}
+    </button>
+    <button class="btn-danger" (click)="clearAccessDetails()" *ngIf="hasStoredAccessDetails || dataService.rawAccessUrl"
+            title="Clear stored access details from localStorage">
+      Clear Stored Access URL
+    </button>
+  </div>
+
+
+  <!-- Bind to component's errorMessage -->
+  <div *ngIf="errorMessage" class="error-box">
+    <strong>Error:</strong> {{ errorMessage }}
+  </div>
+
+  <!-- Bind to component's isLoading and use 'accounts.length' instead of 'accountsData' -->
+  <div *ngIf="isLoading && (!accounts || accounts.length === 0) && !errorMessage" class="loading-indicator">
+    <em>Loading data... Please wait.</em>
+  </div>
+
+  <!-- Use getters for debug info -->
+  <details *ngIf="(rawAccessUrlForDisplay || claimUrlForDisplay) && (!accounts || accounts.length === 0)" class="debug-details">
+    <summary>Connection Details (Debug)</summary>
+    <div class="debug-content">
+      <div *ngIf="claimUrlForDisplay"><strong>Claim URL:</strong> <pre>{{ claimUrlForDisplay }}</pre></div>
+      <div *ngIf="rawAccessUrlForDisplay"><strong>Raw Access URL:</strong> <pre>{{ rawAccessUrlForDisplay }}</pre></div>
+      <div *ngIf="parsedBaseUrlForDisplay"><strong>Parsed Base URL:</strong> <pre>{{ parsedBaseUrlForDisplay }}</pre></div>
+      <div *ngIf="authHeaderForDisplay"><strong>Auth Header:</strong> <pre>{{ authHeaderForDisplay }}</pre></div>
+    </div>
+  </details>
+
+  <!-- Use component's 'accounts' property -->
+  <div *ngIf="accounts && accounts.length > 0" class="accounts-summary-section">
+    <h2>Account Balances</h2>
+    <div class="accounts-summary-grid">
+      <div *ngFor="let account of accounts" class="account-summary-card">
+        <h4>{{ account.org.name }}: {{ account.name }}</h4>
+        <p>
+          <strong>Balance:</strong> {{ account.balanceNum | currency:account.currency:'symbol':'1.2-2' }}
+          <span *ngIf="account.availableBalanceNum !== undefined && account.availableBalanceNum !== account.balanceNum" class="balance-available">
+            (Avail: {{ account.availableBalanceNum | currency:account.currency:'symbol':'1.2-2' }})
+          </span>
+        </p>
+        <p class="last-updated">Last Updated: {{ account['balance-date'] | unixToDate }}</p>
+      </div>
+    </div>
+  </div>
+  <!-- Use component's 'accounts' property -->
+  <div *ngIf="!isLoading && accounts && accounts.length === 0 && !errorMessage" class="no-data-message">
+    <p><em>No accounts found.</em></p>
+  </div>
+
+  <!-- Use component's 'allTransactions' property -->
+  <div *ngIf="allTransactions && allTransactions.length > 0" class="transactions-section">
+    <h2>All Transactions</h2>
+    <div class="transactions-table-container">
+      <table class="transactions-table">
+        <thead>
+          <tr>
+            <th>Org</th>
+            <th>Account</th>
+            <th>Transacted</th>
+            <th>Posted</th>
+            <th>Payee</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Memo</th>
+            <th>Bal. Before</th>
+            <th>Bal. After</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let tx of allTransactions" [class.debit]="tx.amountNum !== undefined && tx.amountNum < 0" [class.credit]="tx.amountNum !== undefined && tx.amountNum >= 0">
+            <td class="tx-org-account">{{ tx.orgName }}</td>
+            <td class="tx-org-account">{{ tx.accountName }}</td>
+            <td class="tx-date">{{ (tx.transacted_at ? (tx.transacted_at | unixToDate) : 'N/A') }}</td>
+            <td class="tx-date">{{ tx.posted | unixToDate }}</td>
+            <td>{{ tx.payee || 'N/A' }}</td>
+            <td class="description-cell" title="{{tx.description}}">{{ tx.description }}</td>
+            <td class="amount">{{ tx.amountNum | currency:tx.currency:'symbol':'1.2-2' }}</td>
+            <td>{{ tx.memo || 'N/A' }}</td>
+            <td class="amount">{{ tx.balanceBefore | currency:tx.currency:'symbol':'1.2-2' }}</td>
+            <td class="amount">{{ tx.balanceAfter | currency:tx.currency:'symbol':'1.2-2' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <!-- Use component's 'allTransactions' and 'accounts' property -->
+  <div *ngIf="!isLoading && accounts && accounts.length > 0 && allTransactions.length === 0 && !errorMessage" class="no-data-message">
+    <p><em>No transactions found for this period.</em></p>
+  </div>
+</div>

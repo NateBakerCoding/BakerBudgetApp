@@ -1,0 +1,47 @@
+<div class="filter-group" [style.margin-left.px]="depth * 20">
+  <div class="group-header">
+    <label>Combine conditions with:</label>
+    <select [(ngModel)]="filterGroup.operator" (ngModelChange)="onGroupOperatorChange()" name="groupOperator_{{filterGroup.id}}">
+      <option *ngFor="let op of logicalOperators" [value]="op">{{ op }}</option>
+    </select>
+  </div>
+
+  <!-- Conditions -->
+  <div *ngFor="let condition of filterGroup.conditions; let i = index" class="filter-condition">
+    <select [(ngModel)]="condition.field" (ngModelChange)="onConditionChange()" name="conditionField_{{condition.id}}">
+      <option *ngFor="let field of filterableFieldsList" [value]="field.id">{{ field.name }}</option>
+    </select>
+
+    <select [(ngModel)]="condition.operator" (ngModelChange)="onConditionChange()" name="conditionOperator_{{condition.id}}">
+      <option *ngFor="let op of getOperators(condition.field)" [value]="op.id">{{ op.name }}</option>
+    </select>
+
+    <input [type]="getFieldInputType(condition.field)" [(ngModel)]="condition.value" (ngModelChange)="onConditionChange()" name="conditionValue_{{condition.id}}" placeholder="Value">
+    
+    <input *ngIf="isBetweenOperator(condition.operator)" 
+           [type]="getFieldInputType(condition.field)" 
+           [(ngModel)]="condition.value2" (ngModelChange)="onConditionChange()" name="conditionValue2_{{condition.id}}" placeholder="Value 2 (for 'between')">
+    
+    <label *ngIf="isFieldNumeric(condition.field)" class="abs-label">
+        <input type="checkbox" [(ngModel)]="condition.useAbsoluteAmount" (ngModelChange)="onConditionChange()" name="conditionAbs_{{condition.id}}"> Use Absolute Amount
+    </label>
+
+    <button type="button" (click)="removeCondition(i)" class="btn-remove remove-condition-btn" title="Remove Condition">X</button>
+  </div>
+  <button type="button" (click)="addCondition()" class="btn-add add-condition-btn">+ Add Condition</button>
+
+  <!-- Sub-Groups (Recursive) -->
+  <div *ngFor="let subGroup of filterGroup.subGroups; let j = index" class="sub-group-container">
+    <app-filter-group 
+        [filterGroup]="subGroup" 
+        [depth]="depth + 1"
+        [filterableFieldsList]="filterableFieldsList"
+        [getOperatorsForField]="getOperatorsForField"
+        [getFieldType]="getFieldType"
+        [isBetweenOperator]="isBetweenOperator"
+        (groupChanged)="onSubGroupChanged()">
+    </app-filter-group>
+    <button type="button" (click)="removeSubGroup(j)" class="btn-remove remove-subgroup-btn" title="Remove This Group">Remove Group</button>
+  </div>
+  <button type="button" (click)="addSubGroup()" class="btn-add add-subgroup-btn">+ Add Group</button>
+</div>

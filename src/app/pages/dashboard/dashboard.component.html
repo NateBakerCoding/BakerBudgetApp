@@ -1,0 +1,86 @@
+<!-- src/app/pages/dashboard/dashboard.component.html -->
+<div class="page-container">
+  <h1>Budget Dashboard</h1>
+
+  <!-- Account Summary Section -->
+  <section class="dashboard-section">
+    <div class="section-header foldable" (click)="toggleAccountSummary()">
+      <h2>Account Balances</h2>
+      <span class="expand-icon">{{ accountSummaryFolded ? '►' : '▼' }}</span>
+    </div>
+
+    <div *ngIf="!accountSummaryFolded">
+      <div *ngIf="accountSummary.length > 0; else noAccounts" class="accounts-summary-grid">
+        <div *ngFor="let account of accountSummary" class="account-summary-card">
+          <h4>{{ account.org.name }}: {{ account.name }}</h4>
+          <p>
+            <strong>Balance:</strong> {{ account.balanceNum | currency:account.currency:'symbol':'1.2-2' }}
+            <span *ngIf="account.availableBalanceNum !== undefined && account.availableBalanceNum !== account.balanceNum" class="balance-available">
+              (Avail: {{ account.availableBalanceNum | currency:account.currency:'symbol':'1.2-2' }})
+            </span>
+          </p>
+          <p class="last-updated">Last Updated: {{ account['balance-date'] | unixToDate }}</p>
+        </div>
+      </div>
+      <ng-template #noAccounts>
+        <p *ngIf="!isLoading && !errorMessage && hasStoredAccessDetails" class="no-data-message">
+          <em>No account summary data available.</em>
+        </p>
+        <p *ngIf="!isLoading && !errorMessage && !hasStoredAccessDetails" class="no-data-message">
+          <em>No account summary data available. Please connect to SimpleFin via the "Raw Data" page.</em>
+        </p>
+      </ng-template>
+      <div *ngIf="isLoading && accountSummary.length === 0" class="loading-indicator">
+          <em>Loading account summary...</em>
+      </div>
+    </div>
+  </section>
+
+  <!-- Buckets Overview Section -->
+  <section class="dashboard-section">
+    <h2>Budget Buckets</h2>
+    <div *ngIf="categorizedBuckets.length > 0; else noBucketsMessage">
+      <div *ngFor="let bucket of categorizedBuckets" class="bucket-card">
+        <div class="bucket-header foldable" (click)="toggleTransactions(bucket)">
+          <h3>{{ bucket.name }}</h3>
+          <div class="bucket-summary">
+            <span>Total: {{ bucket.totalAmount | currency:(bucket.transactions[0].currency || 'USD'):'symbol':'1.2-2' }}</span>
+            <span>({{ bucket.transactions.length }} transactions)</span>
+            <span class="expand-icon">{{ bucket.expanded ? '▼' : '►' }}</span>
+          </div>
+        </div>
+        <div *ngIf="bucket.expanded" class="transactions-list">
+          <div *ngIf="bucket.transactions.length > 0; else noTransactionsInBucketMessage">
+            <table class="transactions-table-condensed">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Payee</th>
+                  <th>Description</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let tx of bucket.transactions" [class.debit]="tx.amountNum !== undefined && tx.amountNum < 0" [class.credit]="tx.amountNum !== undefined && tx.amountNum >= 0">
+                  <td class="tx-date">{{ tx.posted | unixToDate }}</td>
+                  <td>{{ tx.payee || 'N/A' }}</td>
+                  <td class="description-cell" title="{{tx.description}}">{{ tx.description }}</td>
+                  <td class="amount">{{ tx.amountNum | currency:tx.currency:'symbol':'1.2-2' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <ng-template #noTransactionsInBucketMessage>
+            <p><em>No transactions in this bucket for the current period.</em></p>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+    <ng-template #noBucketsMessage>
+      <p *ngIf="!isLoading" class="no-data-message">No buckets configured yet. Go to <a routerLink="/setup">Setup/Config</a> to create some.</p>
+    </ng-template>
+    <div *ngIf="isLoading && categorizedBuckets.length === 0" class="loading-indicator">
+      <em>Loading buckets and transactions...</em>
+    </div>
+  </section>
+</div>

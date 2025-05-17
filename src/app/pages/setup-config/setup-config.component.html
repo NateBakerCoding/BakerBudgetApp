@@ -1,0 +1,166 @@
+<!-- src/app/pages/setup-config/setup-config.component.html -->
+<div class="page-container">
+  <h1>Setup & Configuration</h1>
+
+  <!-- Bucket Management -->
+  <section class="config-section">
+    <div class="section-header foldable" (click)="toggleManageBuckets()">
+      <h2>Manage Buckets</h2>
+      <span class="expand-icon">{{ manageBucketsFolded ? '►' : '▼' }}</span>
+    </div>
+    <div *ngIf="!manageBucketsFolded">
+      <div class="form-card">
+        <h3>{{ editingBucket ? 'Edit Bucket: ' + editingBucket.name : 'Add New Bucket' }}</h3>
+        <form (ngSubmit)="submitBucketForm()">
+          <div class="form-group">
+            <label for="bucketName">Bucket Name:</label>
+            <input type="text" id="bucketName" 
+                   [(ngModel)]="formBucketName" 
+                   name="bucketName" required 
+                   placeholder="e.g., Groceries, Rent, Fun Money">
+          </div>
+          <div class="form-group">
+            <label for="bucketPriority">Priority (lower is higher):</label>
+            <input type="number" id="bucketPriority" 
+                   [(ngModel)]="formBucketPriority" 
+                   name="bucketPriority" required min="1">
+          </div>
+          <div class="button-group">
+            <button type="submit" class="btn-primary">{{ editingBucket ? 'Save Changes' : 'Add Bucket' }}</button>
+            <button type="button" class="btn-secondary" *ngIf="editingBucket" (click)="cancelEditBucket()">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="list-card" *ngIf="buckets.length > 0">
+        <h3>Existing Buckets</h3>
+        <ul>
+          <li *ngFor="let bucket of buckets" class="list-item">
+            <div>
+              <strong>{{ bucket.name }}</strong> (Priority: {{ bucket.priority }})
+              <span class="rule-count">({{ bucket.rules.length }} rules linked)</span>
+            </div>
+            <div class="item-actions">
+              <button (click)="openBucketRuleConfig(bucket)" class="btn-config-rules">Configure Rules</button>
+              <button (click)="startEditBucket(bucket)" class="btn-edit">Edit Bucket</button>
+              <button (click)="deleteBucket(bucket.id)" class="btn-danger-outline">Delete Bucket</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <p *ngIf="buckets.length === 0 && !manageBucketsFolded" class="no-data-message">
+        No buckets created yet. Add one above!
+      </p>
+    </div>
+  </section>
+
+  <!-- Bucket Rule Configuration Modal/Section (shown when selectedBucketForRules is set) -->
+  <section *ngIf="selectedBucketForRules" class="config-section rule-config-modal">
+      <div class="section-header">
+        <h2>Configure Rules for Bucket: {{ selectedBucketForRules.name }}</h2>
+        <button (click)="closeBucketRuleConfig()" class="btn-close-modal">Close</button>
+      </div>
+      <div class="list-card" *ngIf="rules.length > 0; else noRulesAvailable">
+        <h3>Available Rules (Check to link & activate)</h3>
+        <ul>
+          <li *ngFor="let rule of rules" class="list-item rule-assignment-item">
+            <div class="rule-info">
+              <input type="checkbox" [id]="'link_rule_' + rule.id + '_' + selectedBucketForRules.id"
+                     [checked]="isRuleInBucket(rule.id)"
+                     (change)="toggleRuleForBucket(rule.id, $event)">
+              <label [for]="'link_rule_' + rule.id + '_' + selectedBucketForRules.id">{{ rule.name }}</label>
+            </div>
+            <div class="rule-active-toggle" *ngIf="isRuleInBucket(rule.id)">
+              <input type="checkbox" [id]="'active_rule_' + rule.id + '_' + selectedBucketForRules.id"
+                     [checked]="isRuleActiveInBucket(rule.id)"
+                     (change)="toggleRuleActiveState(rule.id, $event)">
+              <label [for]="'active_rule_' + rule.id + '_' + selectedBucketForRules.id">Active in this bucket</label>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <ng-template #noRulesAvailable>
+        <p class="no-data-message">No global rules defined yet. Create rules in the "Manage Rules" section first.</p>
+      </ng-template>
+  </section>
+
+
+  <!-- Rule Management -->
+  <section class="config-section">
+    <div class="section-header foldable" (click)="toggleManageRules()">
+      <h2>Manage Rules (Global Definitions)</h2>
+      <span class="expand-icon">{{ manageRulesFolded ? '►' : '▼' }}</span>
+    </div>
+    <div *ngIf="!manageRulesFolded">
+      <div class="form-card">
+        <h3>{{ editingRule ? 'Edit Rule: ' + editingRule.name : 'Add New Rule' }}</h3>
+        <form (ngSubmit)="submitRuleForm()">
+          <!-- RULE NAME INPUT - Visible for both Add and Edit Name -->
+          <div class="form-group">
+            <label for="ruleName">Rule Name:</label>
+            <input type="text" id="ruleName" [(ngModel)]="formRuleName" name="ruleName" required placeholder="e.g., Amazon Purchases, Gas Stations">
+          </div>
+
+          <!-- Filter builder ONLY shown when editing an existing rule's filters -->
+          <div *ngIf="editingRule" class="filter-builder-container">
+            <h4>Configure Filters for Rule: "{{ editingRule.name }}"</h4>
+            <app-filter-group
+              [filterGroup]="editingRule.filterGroup"
+              [depth]="0"
+              [filterableFieldsList]="filterableFieldsList"
+              [getOperatorsForField]="getOperatorsForField.bind(this)"
+              [getFieldType]="getFieldType.bind(this)"
+              [isBetweenOperator]="isBetweenOperator.bind(this)"
+              (groupChanged)="onRuleFilterGroupChanged()">
+            </app-filter-group>
+          </div>
+
+          <div class="button-group">
+            <button type="submit" class="btn-primary">{{ editingRule ? 'Save Rule' : 'Add Rule' }}</button>
+            <button type="button" class="btn-secondary" *ngIf="editingRule" (click)="cancelEditRule()">Cancel Edit</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="list-card" *ngIf="rules.length > 0">
+        <h3>Existing Rules</h3>
+        <ul>
+          <li *ngFor="let rule of rules" class="list-item">
+            <span><strong>{{ rule.name }}</strong></span>
+            <div class="item-actions">
+              <button (click)="startEditRule(rule)" class="btn-edit">Edit Rule</button>
+              <button (click)="deleteRule(rule.id)" class="btn-danger-outline">Delete Rule</button>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <p *ngIf="rules.length === 0 && !manageRulesFolded" class="no-data-message">
+        No global rules defined yet. Add one above.
+      </p>
+    </div>
+  </section>
+
+  <!-- Data Fetch Settings -->
+  <section class="config-section">
+    <div class="section-header foldable" (click)="toggleDataFetchSettings()">
+      <h2>Data Fetch Settings</h2>
+      <span class="expand-icon">{{ dataFetchSettingsFolded ? '►' : '▼' }}</span>
+    </div>
+    <div *ngIf="!dataFetchSettingsFolded">
+      <div class="form-card">
+        <h3>Default Data History</h3>
+        <p>Set how far back you want to fetch transaction data by default when claiming a new token or performing a full refresh.</p>
+        <form (ngSubmit)="saveDataFetchSettings()">
+          <div class="form-group">
+            <label for="dataFetchStartDate">Fetch Data Starting From:</label>
+            <input type="date" id="dataFetchStartDate" name="dataFetchStartDate"
+                   [(ngModel)]="dataFetchStartDate">
+          </div>
+          <div class="button-group">
+            <button type="submit" class="btn-primary">Save Date Setting</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>

@@ -1,0 +1,146 @@
+/* src/app/components/filter-group/filter-group.component.css */
+.filter-group {
+  padding: 10px;
+  border: 1px solid var(--surface2); /* Catppuccin surface2 */
+  border-radius: var(--border-radius-medium);
+  margin-bottom: 10px;
+  background-color: var(--surface0); /* Catppuccin surface0 */
+}
+
+.group-header {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.group-header label {
+    margin-bottom: 0; /* Override global label style */
+    color: var(--subtext0);
+}
+.group-header select {
+    background-color: var(--surface1);
+    color: var(--text);
+    border: 1px solid var(--surface2);
+    padding: 5px 8px;
+    border-radius: var(--border-radius-small);
+    font-family: var(--font-family-monospace);
+}
+
+
+.filter-condition {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--overlay0); /* Catppuccin overlay0 */
+}
+.filter-condition:last-of-type {
+  border-bottom: none;
+}
+
+.filter-condition select,
+.filter-condition input[type="text"],
+.filter-condition input[type="number"],
+.filter-condition input[type="date"],
+.filter-condition input[type="time"] {
+  padding: 6px 8px;
+  background-color: var(--base); /* Catppuccin base */
+  color: var(--text);
+  border: 1px solid var(--surface2);
+  border-radius: var(--border-radius-small);
+  font-family: var(--font-family-monospace);
+  font-size: 0.9em;
+}
+.filter-condition input[type="checkbox"] {
+    width: auto;
+    accent-color: var(--mauve);
+}
+.filter-condition .abs-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85em;
+    color: var(--subtext0);
+    margin-bottom: 0;
+}
+
+.btn-remove {
+  background-color: var(--red);
+  color: var(--crust);
+  border: none;
+  border-radius: 50%; /* Make it round */
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  padding: 0;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.8em;
+}
+.btn-remove:hover {
+  background-color: var(--maroon);
+}
+
+.btn-add {
+  background-color: var(--green);
+  color: var(--crust);
+  border: none;
+  padding: 5px 10px;
+  border-radius: var(--border-radius-small);
+  cursor: pointer;
+  margin-top: 10px;
+  font-size: 0.9em;
+  font-weight: bold;
+}
+.btn-add:hover {
+  background-color: var(--teal);
+}
+.add-condition-btn { margin-right: 10px; }
+
+
+.sub-group-container {
+    margin-top: 10px;
+    padding-left: 10px; /* Indent sub-group slightly from its button */
+    border-left: 2px solid var(--overlay1);
+    position: relative; /* For positioning the remove button if needed */
+}
+/* src/app/components/filter-group/filter-group.component.css */
+.remove-subgroup-btn {
+    margin-top: 5px;
+    margin-left: 0;
+    background-color: var(--peach);
+    color: var(--crust); /* Ensure text color is set */
+    border: none; /* Ensure inherited border is none */
+    border-radius: var(--border-radius-small); /* Standard small radius */
+    padding: 5px 10px; /* Give it some padding */
+    font-weight: bold; /* Keep it bold if desired */
+    cursor: pointer;
+    font-size: 0.9em; /* Adjust font size as needed */
+    width: auto; /* Override fixed width from .btn-remove */
+    height: auto; /* Override fixed height */
+    line-height: normal; /* Override fixed line-height */
+    text-align: center; /* Ensure text is centered */
+}
+.remove-subgroup-btn:hover {
+    background-color: var(--yellow);
+}
+
+/* Keep .btn-remove (for 'X' button) as is if you like it for conditions */
+.btn-remove.remove-condition-btn { /* More specific selector for the 'X' */
+  background-color: var(--red);
+  color: var(--crust);
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  padding: 0;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 0.8em;
+}
+.btn-remove.remove-condition-btn:hover {
+  background-color: var(--maroon);
+}

@@ -1,15 +1,12 @@
+// src/app/app.config.ts
 import { ApplicationConfig } from '@angular/core';
-import { provideRouter } from '@angular/router'; // If you have routes
-
-// Import provideHttpClient and potentially withFetch for fetch-based backend requests
+import { provideRouter, withComponentInputBinding } from '@angular/router'; // Import withComponentInputBinding
 import { provideHttpClient, withFetch } from '@angular/common/http';
-
-// import { routes } from './app.routes'; // If you have routes
+import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    // provideRouter(routes), // Uncomment if you have routes
-    provideHttpClient(withFetch()) // Add this to provide HttpClient globally
-                                   // withFetch() enables the fetch API for backend, common for new projects
+    provideRouter(routes, withComponentInputBinding()), // Enable router features
+    provideHttpClient(withFetch())
   ]
 };

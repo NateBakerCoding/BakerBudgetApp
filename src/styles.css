@@ -166,3 +166,78 @@ hr {
   border-top: 1px solid var(--surface0);
   margin: 2em 0;
 }
+
+
+/* src/styles.css (ensure these or similar are present) */
+.accounts-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1em;
+}
+
+.account-summary-card {
+  padding: 15px;
+  border: 1px solid var(--surface0);
+  border-radius: var(--border-radius-large);
+  background-color: var(--surface1);
+  box-shadow: 0 2px 5px rgba(17, 17, 27, 0.3);
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+.account-summary-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(17, 17, 27, 0.4);
+}
+.account-summary-card h4 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  color: var(--sky);
+  font-size: 1.15em;
+}
+.account-summary-card p {
+  margin: 0 0 5px;
+  font-size: 0.95em;
+  color: var(--subtext1);
+}
+.account-summary-card p strong {
+  color: var(--text);
+  font-weight: 700;
+}
+.account-summary-card .balance-available { /* Class for the 'Avail:' span */
+  font-size:0.9em;
+  color: var(--subtext0);
+}
+.account-summary-card .last-updated { /* Class for 'Last Updated' p tag */
+  margin-top: 8px;
+  font-size: 0.8em;
+  color: var(--overlay1);
+}
+/* Add to src/styles.css or a relevant component CSS */
+.section-header.foldable {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.5em 0; /* Adjust as needed */
+  /* Optional: add a border or background on hover */
+}
+.section-header.foldable:hover {
+  /* background-color: var(--surface0); */ /* Example hover */
+}
+
+.section-header h2 { /* Assuming h2 is part of the header */
+  margin-bottom: 0; /* Remove bottom margin if h2 is in the clickable header */
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.expand-icon {
+  font-size: 0.9em; /* Or adjust as needed */
+  margin-left: 10px;
+  color: var(--subtext0);
+}
+
+/* Specific to dashboard bucket headers if needed for different styling */
+.bucket-header.foldable {
+  /* Existing styles are likely fine, just ensure cursor: pointer */
+  cursor: pointer;
+}

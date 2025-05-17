@@ -1,237 +1,33 @@
 /* src/app/app.component.css */
-
-/* Container for the whole app component if needed, but body padding from styles.css might suffice */
-:host {
-  display: block;
-  max-width: 1200px; /* Or your preferred max width */
-  margin: auto;
+.main-nav {
+  background-color: var(--mantle);
+  padding: 10px 20px;
+  display: flex;
+  gap: 20px;
+  border-bottom: 1px solid var(--surface0);
+  margin-bottom: 20px; /* Space below nav */
+  border-radius: var(--border-radius-medium); /* Rounded nav bar */
 }
 
-/* Input groups */
-.input-group {
-  margin-bottom: 1.5em;
-}
-.input-group input[type="text"] { /* Specific max-width for token input */
-  max-width: 450px;
+.main-nav a {
+  color: var(--subtext0);
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: var(--border-radius-small);
+  font-weight: 700; /* Bold nav links */
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Info box for stored URL */
-.stored-url-info {
-  margin-bottom: 1.5em;
-  padding: 12px 15px;
-  background-color: var(--surface0);
-  border: 1px solid var(--surface1);
-  border-left: 4px solid var(--blue);
-  border-radius: var(--border-radius-medium);
-  color: var(--subtext1);
-}
-.stored-url-info p {
-  margin: 0;
-}
-.stored-url-info p:first-child {
-  margin-bottom: 5px;
+.main-nav a:hover {
+  background-color: var(--surface1);
   color: var(--text);
 }
-.stored-url-info code { /* Adjust code inside this box */
-  background-color: var(--surface1);
-  color: var(--peach);
+
+.main-nav a.active-link {
+  background-color: var(--mauve);
+  color: var(--crust); /* Dark text on active mauve link */
 }
 
-/* Action Buttons Specifics */
-.action-buttons {
-  margin-bottom: 2em;
-  display: flex;
-  gap: 10px; /* Space between buttons */
-  flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
-}
-.action-buttons .btn-primary {
-  background-color: var(--blue);
-  color: var(--crust);
-}
-.action-buttons .btn-primary:hover:not(:disabled) {
-  background-color: var(--sapphire);
-}
-.action-buttons .btn-danger {
-  background-color: var(--red);
-  color: var(--crust);
-}
-.action-buttons .btn-danger:hover:not(:disabled) {
-  background-color: var(--maroon);
-}
-
-/* Error Box */
-.error-box {
-  background-color: rgba(243, 139, 168, 0.1); /* Red with transparency */
-  border: 1px solid var(--red);
-  border-left: 4px solid var(--red);
-  color: var(--red);
-  margin-top: 1.5em;
-  padding: 12px 15px;
-  border-radius: var(--border-radius-medium);
-}
-.error-box strong {
-  color: var(--red); /* Ensure strong text also uses error color */
-}
-
-/* Loading Indicator */
-.loading-indicator {
-  margin-top: 1.5em;
-  color: var(--subtext0);
-  font-style: italic;
-}
-
-/* Debug Details Section */
-details.debug-details {
-  margin-bottom: 2em;
-  font-size: 0.9em;
-  border: 1px solid var(--surface0);
-  border-radius: var(--border-radius-medium);
-  background-color: var(--mantle);
-}
-details.debug-details summary {
-  cursor: pointer;
-  font-weight: 700; /* Bold summary text */
-  color: var(--peach);
-  padding: 10px 15px;
-  border-radius: var(--border-radius-medium) var(--border-radius-medium) 0 0; /* Rounded top corners if details open */
-}
-details.debug-details summary:hover {
-  background-color: var(--surface0);
-}
-details.debug-details[open] summary {
-   border-bottom: 1px solid var(--surface0);
-}
-details.debug-details .debug-content {
-  padding: 15px;
-  background-color: var(--mantle); /* Ensure content bg matches */
-  border-radius: 0 0 var(--border-radius-medium) var(--border-radius-medium);
-}
-details.debug-details pre {
-  background-color: var(--crust); /* Darker pre within debug */
-  border-color: var(--surface0);
-  font-size: 0.95em; /* Slightly larger pre for readability */
-}
-
-/* Account Balances Summary */
-.accounts-summary-section {
-  margin-bottom: 2.5em;
-}
-.accounts-summary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Slightly wider cards */
-  gap: 1em;
-}
-.account-summary-card {
-  padding: 15px; /* More padding */
-  border: 1px solid var(--surface0);
-  border-radius: var(--border-radius-large); /* More rounded */
-  background-color: var(--surface1);
-  box-shadow: 0 2px 5px rgba(17, 17, 27, 0.3); /* Subtle shadow with crust color */
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-.account-summary-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(17, 17, 27, 0.4);
-}
-.account-summary-card h4 {
-  margin-top: 0;
-  margin-bottom: 8px;
-  color: var(--sky); /* Use Sky for card titles */
-  font-size: 1.15em; /* Slightly larger card titles */
-}
-.account-summary-card p {
-  margin: 0 0 5px;
-  font-size: 0.95em;
-  color: var(--subtext1);
-}
-.account-summary-card p strong {
-  color: var(--text); /* Main text color for strong elements within cards */
-  font-weight: 700;
-}
-.account-summary-card .balance-available {
-  font-size:0.9em;
-  color: var(--subtext0);
-}
-.account-summary-card .last-updated {
-  margin-top: 8px;
-  font-size: 0.8em;
-  color: var(--overlay1);
-}
-
-/* Transactions Table Section */
-.transactions-section {
-  margin-bottom: 2em;
-}
-.transactions-table-container {
-  overflow-x: auto;
-  border: 1px solid var(--surface0);
-  border-radius: var(--border-radius-medium);
-  background-color: var(--surface1); /* Table background */
-}
-.transactions-table {
-  width: 100%;
-  border-collapse: collapse; /* Important for styling borders correctly */
-  font-size: 0.9em;
-}
-.transactions-table th,
-.transactions-table td {
-  padding: 10px 12px; /* More padding in table cells */
-  border: none; /* Remove individual cell borders if table container has one */
-  border-bottom: 1px solid var(--surface0); /* Horizontal lines between rows */
-  text-align: left;
-  vertical-align: middle; /* Better vertical alignment */
-  color: var(--subtext1);
-}
-.transactions-table th {
-  background-color: var(--surface0); /* Header background */
-  color: var(--mauve);
-  font-weight: 700; /* Bold headers */
-  border-bottom-width: 2px; /* Thicker line under headers */
-  position: sticky; /* Sticky headers */
-  top: 0;
-  z-index: 1;
-}
-.transactions-table tbody tr:last-child td {
-  border-bottom: none; /* No border for the last row */
-}
-.transactions-table tbody tr:hover {
-  background-color: var(--mantle);
-}
-.transactions-table td.amount {
-  text-align: right;
-  white-space: nowrap;
-  font-weight: 700; /* Bolder amounts */
-}
-.transactions-table td.description-cell { /* Description column */
-  max-width: 200px; /* Adjust as needed */
-  min-width: 150px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.transactions-table tr.credit td.amount {
-  color: var(--green);
-}
-.transactions-table tr.debit td.amount {
-  color: var(--red);
-}
-.transactions-table .tx-org-account { /* For Org/Account columns */
-  color: var(--subtext0);
-  font-size: 0.9em;
-}
-.transactions-table .tx-date { /* For date columns */
-  color: var(--overlay2);
-  font-size: 0.9em;
-  white-space: nowrap;
-}
-
-/* No data messages */
-.no-data-message {
-  margin-top: 1.5em;
-  padding: 15px;
-  background-color: var(--surface1);
-  border-radius: var(--border-radius-medium);
-  color: var(--subtext0);
-  text-align: center;
-  font-style: italic;
+.content-area {
+  padding: 0 15px; /* Padding for the content below nav */
 }

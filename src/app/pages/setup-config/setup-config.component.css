@@ -1,0 +1,190 @@
+/* src/app/pages/setup-config/setup-config.component.css */
+.page-container {
+  padding: 10px;
+}
+
+.config-section {
+  margin-bottom: 2.5em;
+  padding: 1.5em;
+  background-color: var(--surface0);
+  border-radius: var(--border-radius-large);
+}
+.config-section h2 {
+  margin-top: 0;
+  color: var(--pink);
+  border-bottom: 1px solid var(--surface1);
+  padding-bottom: 0.5em;
+}
+
+.form-card, .list-card {
+  background-color: var(--surface1);
+  padding: 1.5em;
+  border-radius: var(--border-radius-medium);
+  margin-top: 1em;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.form-card h3, .list-card h3 {
+  margin-top: 0;
+  color: var(--lavender);
+}
+
+.form-group {
+  margin-bottom: 1em;
+}
+.form-group label {
+  display: block;
+  margin-bottom: .5em;
+  color: var(--subtext0);
+  font-weight: 700;
+}
+.form-group input[type="text"],
+.form-group input[type="number"] {
+  width: 100%;
+  max-width: 400px; /* Or adjust as needed */
+  padding: 10px;
+  background-color: var(--base); /* Inputs darker */
+  border: 1px solid var(--surface0);
+  border-radius: var(--border-radius-medium);
+  color: var(--text);
+}
+.form-group input:focus {
+  border-color: var(--mauve);
+  box-shadow: 0 0 0 2px rgba(203, 166, 247, 0.3);
+}
+
+.button-group {
+  margin-top: 1.5em;
+  display: flex;
+  gap: 10px;
+}
+.button-group button.btn-primary { background-color: var(--blue); color: var(--crust); }
+.button-group button.btn-primary:hover { background-color: var(--sapphire); }
+.button-group button.btn-secondary { background-color: var(--overlay0); color: var(--text); }
+.button-group button.btn-secondary:hover { background-color: var(--overlay1); }
+
+
+.list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--surface0);
+  color: var(--subtext1);
+}
+.list-item:last-child {
+  border-bottom: none;
+}
+.list-item strong {
+  color: var(--text);
+}
+.item-actions button {
+  margin-left: 10px;
+  padding: 6px 10px;
+  font-size: 0.9em;
+}
+.btn-edit { background-color: var(--peach); color: var(--crust); }
+.btn-edit:hover { background-color: var(--yellow); }
+.btn-danger-outline {
+  background-color: transparent;
+  border: 1px solid var(--red);
+  color: var(--red);
+}
+.btn-danger-outline:hover {
+  background-color: rgba(243, 139, 168, 0.1); /* Red transparent */
+  color: var(--red);
+}
+.list-item .rule-count {
+  font-size: 0.85em;
+  color: var(--subtext0);
+  margin-left: 8px;
+}
+
+.item-actions .btn-config-rules {
+  background-color: var(--teal);
+  color: var(--crust);
+  margin-right: 8px; /* Ensure spacing if other buttons are present */
+}
+.item-actions .btn-config-rules:hover {
+  background-color: var(--green);
+}
+
+.rule-config-modal {
+  border: 2px solid var(--mauve); /* Highlight this section */
+  margin-top: 1.5em;
+}
+.rule-config-modal .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--surface0); /* Slightly different header for modal-like section */
+  padding: 0.8em 1.5em;
+  border-bottom: 1px solid var(--surface1);
+}
+.rule-config-modal .section-header h2 {
+    color: var(--mauve);
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+}
+.btn-close-modal {
+  background-color: var(--overlay0);
+  color: var(--text);
+  padding: 6px 12px;
+}
+.btn-close-modal:hover {
+  background-color: var(--overlay1);
+}
+
+.rule-assignment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px; /* Space between rule name and its active toggle */
+}
+.rule-assignment-item .rule-info,
+.rule-assignment-item .rule-active-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between checkbox and label */
+}
+.rule-assignment-item input[type="checkbox"] {
+  width: auto; /* Override global input width for checkboxes */
+  margin-right: 5px;
+  accent-color: var(--mauve);
+}
+.rule-assignment-item label {
+    margin-bottom: 0; /* Align label with checkbox */
+    font-weight: normal; /* Normal weight for these labels */
+    color: var(--text);
+}
+.rule-active-toggle label {
+    font-size: 0.9em;
+    color: var(--subtext0);
+}
+
+.filter-builder-placeholder {
+  margin-top: 1em;
+  padding: 1em;
+  background-color: var(--base);
+  border: 1px dashed var(--overlay1);
+  border-radius: var(--border-radius-medium);
+  color: var(--subtext0);
+}
+.filter-builder-placeholder pre {
+    font-size: 0.8em;
+    max-height: 150px;
+    overflow-y: auto;
+}
+/* src/app/pages/setup-config/setup-config.component.css */
+.filter-builder-container {
+  margin-top: 1.5em;
+  padding: 1em;
+  background-color: var(--base); /* Or var(--mantle) */
+  border: 1px solid var(--surface1);
+  border-radius: var(--border-radius-medium);
+}
+.filter-builder-container h4 {
+    margin-top: 0;
+    margin-bottom: 1em;
+    color: var(--peach);
+}
