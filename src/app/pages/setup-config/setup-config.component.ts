@@ -2,22 +2,17 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-  Bucket,
-  Rule,
-  FilterableField, 
-  StringOperator, 
-  NumericOperator, 
-  DateOperator, 
-  FilterCondition, 
-  FilterGroup, 
-  LogicalOperator 
+import {
+  Bucket, Rule, FilterableField, StringOperator, NumericOperator, DateOperator,
+  FilterCondition, FilterGroup, LogicalOperator,
+  BucketGoal, GoalType, GoalTimePeriodType // Import new Goal models
 } from '../../models/budget.model';
 import { BudgetConfigService } from '../../services/budget-config.service';
 import { SimpleFinDataService } from '../../services/simplefin-data.service';
 import { UiStateService } from '../../services/ui-state.service';
 import { FilterGroupComponent } from '../../components/filter-group/filter-group.component';
 
+// Define constants for UI state IDs (ensure these are exactly as used in ngOnInit)
 const UI_SETUP_MANAGE_BUCKETS_FOLDED = 'setupManageBucketsFolded';
 const UI_SETUP_MANAGE_RULES_FOLDED = 'setupManageRulesFolded';
 const UI_SETUP_DATA_FETCH_FOLDED = 'setupDataFetchFolded';
@@ -30,27 +25,46 @@ const UI_SETUP_DATA_FETCH_FOLDED = 'setupDataFetchFolded';
   styleUrls: ['./setup-config.component.css']
 })
 export class SetupConfigComponent implements OnInit {
-  // Bucket Properties
+  // --- Bucket Properties ---
   buckets: Bucket[] = [];
   formBucketName: string = '';
   formBucketPriority: number = 10;
   editingBucket: Bucket | null = null;
   selectedBucketForRules: Bucket | null = null;
 
-  // Rule Properties
+  // --- Goal Properties for Bucket Form ---
+  formBucketGoal: BucketGoal = this.createEmptyBucketGoal();
+
+  // --- Rule Properties ---
   rules: Rule[] = [];
   formRuleName: string = '';
   editingRule: Rule | null = null;
 
-  // Data Fetch Properties
+  // --- Data Fetch Properties ---
   dataFetchStartDate: string = '';
 
-  // Foldable State Properties
+  // --- Foldable State Properties ---
   manageBucketsFolded: boolean = true;
   manageRulesFolded: boolean = true;
   dataFetchSettingsFolded: boolean = true;
 
-  // Rule Configurator Helper Data
+  // --- Enums/Lists for Template Dropdowns ---
+  // Expose enums directly for more robust template comparisons
+  public readonly GoalType = GoalType;
+  public readonly GoalTimePeriodType = GoalTimePeriodType;
+
+  public readonly goalTypeOptions = [
+    { id: GoalType.SAVINGS, name: 'Savings Goal (Aim to accumulate)' },
+    { id: GoalType.SPENDING_LIMIT, name: 'Spending Limit (Track expenses against a cap)' }
+  ];
+  public readonly goalTimePeriodTypeOptions = [
+    { id: GoalTimePeriodType.CURRENT_MONTH, name: 'This Current Month' },
+    { id: GoalTimePeriodType.ROLLING_DAYS, name: 'Rolling Last X Days' },
+    { id: GoalTimePeriodType.FIXED_DATE_RANGE, name: 'Fixed Date Range' },
+    { id: GoalTimePeriodType.CURRENT_YEAR, name: 'This Current Year' },
+    { id: GoalTimePeriodType.ALL_TIME, name: 'All Time (since data start)' }
+  ];
+
   public readonly filterableFieldsList: Array<{ id: FilterableField, name: string, type: 'string' | 'number' | 'date' | 'datePart' | 'timeString', part?: 'dayOfWeek' | 'weekOfMonth' | 'monthOfYear' }> = [
     { id: 'payeeName', name: 'Payee Name', type: 'string' },
     { id: 'descriptionText', name: 'Description', type: 'string' },
@@ -63,9 +77,8 @@ export class SetupConfigComponent implements OnInit {
     { id: 'weekOfMonth', name: 'Week of Month (1-5)', type: 'datePart', part: 'weekOfMonth' },
     { id: 'monthOfYear', name: 'Month (Jan=0, Feb=1..)', type: 'datePart', part: 'monthOfYear' },
     { id: 'transactionTime', name: 'Transaction Time (HH:MM)', type: 'timeString' },
-    { id: 'postedDate', name: 'Posted Date', type: 'date' } // Added from Correction 3
+    { id: 'postedDate', name: 'Posted Date', type: 'date' }
   ];
-
   public readonly stringOperators: Array<{ id: StringOperator, name: string }> = [
     { id: 'exactMatch', name: 'Exactly Matches' }, { id: 'contains', name: 'Contains' },
     { id: 'doesNotContain', name: 'Does Not Contain' }, { id: 'startsWith', name: 'Starts With' },
@@ -85,7 +98,7 @@ export class SetupConfigComponent implements OnInit {
   public readonly datePartOperators: Array<{ id: Extract<NumericOperator, 'equalTo' | 'notEqualTo'>, name: string }> = [
     { id: 'equalTo', name: 'Is' }, { id: 'notEqualTo', name: 'Is Not' }
   ];
-  public readonly timeStringOperators: Array<{ id: Extract<StringOperator, 'exactMatch'> , name: string }> = [ // Removed before/after for now
+  public readonly timeStringOperators: Array<{ id: Extract<StringOperator, 'exactMatch'> , name: string }> = [
     { id: 'exactMatch', name: 'Exactly At (HH:MM)'}
   ];
 
@@ -109,35 +122,89 @@ export class SetupConfigComponent implements OnInit {
     this.dataFetchSettingsFolded = await this.uiStateService.getFoldableState(UI_SETUP_DATA_FETCH_FOLDED, true);
   }
 
+  createEmptyBucketGoal(): BucketGoal {
+    const today = new Date();
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
+
+    return {
+      isActive: false,
+      targetAmount: 0,
+      goalType: GoalType.SPENDING_LIMIT,
+      periodType: GoalTimePeriodType.CURRENT_MONTH,
+      rollingDays: 30,
+      startDate: today.toISOString().split('T')[0],
+      endDate: nextMonth.toISOString().split('T')[0]
+    };
+  }
+
   // --- Bucket Methods ---
   loadBuckets(): void { this.buckets = this.budgetConfigService.getBuckets(); }
+
   resetBucketFormFields(): void {
     this.formBucketName = '';
     const maxPriority = this.buckets.length > 0 ? Math.max(...this.buckets.map(b => b.priority)) : 0;
     this.formBucketPriority = maxPriority + 10;
     this.editingBucket = null;
+    this.formBucketGoal = this.createEmptyBucketGoal();
   }
-  submitBucketForm(): void { if (this.editingBucket) { this.saveEditBucket(); } else { this.addBucket(); } }
-  addBucket(): void {
-    if (this.formBucketName.trim() && this.formBucketPriority > 0) {
-      this.budgetConfigService.addBucket(this.formBucketName.trim(), this.formBucketPriority);
-      this.loadBuckets(); this.resetBucketFormFields();
+
+  submitBucketForm(): void {
+    if (this.editingBucket) {
+      this.saveEditBucket();
+    } else {
+      this.addBucket();
     }
   }
+
+  addBucket(): void {
+    if (this.formBucketName.trim() && this.formBucketPriority > 0) {
+      const newBucketName = this.formBucketName.trim();
+      const newBucketPriority = this.formBucketPriority;
+      const newBucketGoal = this.formBucketGoal.isActive ? { ...this.formBucketGoal } : undefined;
+
+      // Add bucket using service, which generates ID
+      const tempBucket = this.budgetConfigService.addBucket(newBucketName, newBucketPriority);
+      
+      // If a goal was configured, update the newly created bucket with the goal
+      if (tempBucket && newBucketGoal) {
+        const bucketToUpdate: Bucket = {
+            ...tempBucket, // This includes the ID generated by the service
+            goal: newBucketGoal
+        };
+        this.budgetConfigService.updateBucket(bucketToUpdate);
+      }
+
+      this.loadBuckets(); // Reload to get the final list with updated bucket
+      this.resetBucketFormFields();
+    }
+  }
+
   deleteBucket(bucketId: string): void {
-    if (confirm('Are you sure? This will also remove its rule associations.')) {
+    if (confirm('Are you sure you want to delete this bucket? Its rule associations will also be removed.')) {
       this.budgetConfigService.deleteBucket(bucketId); this.loadBuckets();
       if (this.editingBucket && this.editingBucket.id === bucketId) { this.resetBucketFormFields(); }
       if (this.selectedBucketForRules && this.selectedBucketForRules.id === bucketId) { this.selectedBucketForRules = null; }
     }
   }
+
   startEditBucket(bucket: Bucket): void {
-    this.editingBucket = bucket; this.formBucketName = bucket.name; this.formBucketPriority = bucket.priority;
+    this.editingBucket = bucket;
+    this.formBucketName = bucket.name;
+    this.formBucketPriority = bucket.priority;
+    this.formBucketGoal = bucket.goal ? JSON.parse(JSON.stringify(bucket.goal)) : this.createEmptyBucketGoal(); // Deep copy for goal
   }
+
   saveEditBucket(): void {
     if (this.editingBucket && this.formBucketName.trim() && this.formBucketPriority > 0) {
-      const updatedBucketData: Bucket = { ...this.editingBucket, name: this.formBucketName.trim(), priority: this.formBucketPriority };
-      this.budgetConfigService.updateBucket(updatedBucketData); this.loadBuckets(); this.resetBucketFormFields();
+      const updatedBucketData: Bucket = {
+        ...this.editingBucket,
+        name: this.formBucketName.trim(),
+        priority: this.formBucketPriority,
+        goal: this.formBucketGoal.isActive ? { ...this.formBucketGoal } : undefined
+      };
+      this.budgetConfigService.updateBucket(updatedBucketData);
+      this.loadBuckets();
+      this.resetBucketFormFields();
     }
   }
   cancelEditBucket(): void { this.resetBucketFormFields(); }
@@ -146,11 +213,11 @@ export class SetupConfigComponent implements OnInit {
   loadRules(): void { this.rules = this.budgetConfigService.getRules(); }
   resetRuleFormFields(): void { this.formRuleName = ''; this.editingRule = null; }
 
-  submitRuleForm(): void { // This is the corrected version
+  submitRuleForm(): void {
     if (this.editingRule) {
       if (this.formRuleName.trim()) {
         this.editingRule.name = this.formRuleName.trim();
-        this.budgetConfigService.updateRule(this.editingRule); // editingRule.filterGroup is assumed to be modified by child component
+        this.budgetConfigService.updateRule(this.editingRule);
         this.loadRules();
         this.resetRuleFormFields();
       }
@@ -163,12 +230,12 @@ export class SetupConfigComponent implements OnInit {
       this.budgetConfigService.addRule(this.formRuleName.trim()); this.loadRules(); this.resetRuleFormFields();
     }
   }
-  startEditRule(rule: Rule): void { // This is the corrected version
-    this.editingRule = JSON.parse(JSON.stringify(rule)); // Deep copy for editing filterGroup
-    if (this.editingRule) { // Null check after copy (though stringify/parse should produce object)
+  startEditRule(rule: Rule): void {
+    this.editingRule = JSON.parse(JSON.stringify(rule));
+    if (this.editingRule) {
         this.formRuleName = this.editingRule.name;
     } else {
-        this.resetRuleFormFields(); // Should not happen ideally
+        this.resetRuleFormFields();
     }
   }
   deleteRule(ruleId: string): void {

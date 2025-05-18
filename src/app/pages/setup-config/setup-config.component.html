@@ -25,6 +25,57 @@
                    [(ngModel)]="formBucketPriority" 
                    name="bucketPriority" required min="1">
           </div>
+
+          <!-- Goal Configuration Section -->
+          <div class="form-section-divider" style="margin-top: 20px; margin-bottom: 15px; border-top: 1px solid var(--surface2); padding-top:15px;">
+            <h4 style="color: var(--peach); margin-bottom: 10px;">Goal Configuration (Optional)</h4>
+          </div>
+          <div class="form-group">
+            <label class="checkbox-label" style="display: flex; align-items: center; gap: 8px;">
+              <input type="checkbox" name="goalIsActive" style="width: auto; margin-right: 0;"
+                     [(ngModel)]="formBucketGoal.isActive"> Enable Goal for this Bucket
+            </label>
+          </div>
+
+          <div *ngIf="formBucketGoal.isActive" class="goal-config-fields">
+            <div class="form-group">
+              <label for="goalType">Goal Type:</label>
+              <select id="goalType" name="goalType" [(ngModel)]="formBucketGoal.goalType">
+                <option *ngFor="let typeOpt of goalTypeOptions" [value]="typeOpt.id">{{ typeOpt.name }}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="targetAmount">Target Amount (always positive):</label>
+              <input type="number" id="targetAmount" name="targetAmount" [(ngModel)]="formBucketGoal.targetAmount" placeholder="e.g., 500" min="0" step="0.01">
+            </div>
+
+            <div class="form-group">
+              <label for="goalPeriodType">Time Period:</label>
+              <select id="goalPeriodType" name="goalPeriodType" [(ngModel)]="formBucketGoal.periodType">
+                <option *ngFor="let periodOpt of goalTimePeriodTypeOptions" [value]="periodOpt.id">{{ periodOpt.name }}</option>
+              </select>
+            </div>
+
+            <!-- Conditional inputs based on periodType -->
+            <div *ngIf="formBucketGoal.periodType === GoalTimePeriodType.ROLLING_DAYS" class="form-group">
+              <label for="goalRollingDays">Number of Rolling Days:</label>
+              <input type="number" id="goalRollingDays" name="goalRollingDays" [(ngModel)]="formBucketGoal.rollingDays" placeholder="e.g., 30" min="1">
+            </div>
+
+            <div *ngIf="formBucketGoal.periodType === GoalTimePeriodType.FIXED_DATE_RANGE" class="goal-date-range-inputs">
+              <div class="form-group">
+                <label for="goalStartDate">Goal Start Date:</label>
+                <input type="date" id="goalStartDate" name="goalStartDate" [(ngModel)]="formBucketGoal.startDate">
+              </div>
+              <div class="form-group">
+                <label for="goalEndDate">Goal End Date:</label>
+                <input type="date" id="goalEndDate" name="goalEndDate" [(ngModel)]="formBucketGoal.endDate">
+              </div>
+            </div>
+          </div>
+          <!-- END Goal Configuration -->
+
           <div class="button-group">
             <button type="submit" class="btn-primary">{{ editingBucket ? 'Save Changes' : 'Add Bucket' }}</button>
             <button type="button" class="btn-secondary" *ngIf="editingBucket" (click)="cancelEditBucket()">Cancel</button>
@@ -39,6 +90,7 @@
             <div>
               <strong>{{ bucket.name }}</strong> (Priority: {{ bucket.priority }})
               <span class="rule-count">({{ bucket.rules.length }} rules linked)</span>
+              <span *ngIf="bucket.goal && bucket.goal.isActive" class="goal-indicator" title="Goal Active">🎯</span>
             </div>
             <div class="item-actions">
               <button (click)="openBucketRuleConfig(bucket)" class="btn-config-rules">Configure Rules</button>
@@ -95,13 +147,11 @@
       <div class="form-card">
         <h3>{{ editingRule ? 'Edit Rule: ' + editingRule.name : 'Add New Rule' }}</h3>
         <form (ngSubmit)="submitRuleForm()">
-          <!-- RULE NAME INPUT - Visible for both Add and Edit Name -->
           <div class="form-group">
             <label for="ruleName">Rule Name:</label>
             <input type="text" id="ruleName" [(ngModel)]="formRuleName" name="ruleName" required placeholder="e.g., Amazon Purchases, Gas Stations">
           </div>
 
-          <!-- Filter builder ONLY shown when editing an existing rule's filters -->
           <div *ngIf="editingRule" class="filter-builder-container">
             <h4>Configure Filters for Rule: "{{ editingRule.name }}"</h4>
             <app-filter-group

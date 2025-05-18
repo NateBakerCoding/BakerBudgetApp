@@ -59,3 +59,95 @@
 .transactions-table-condensed tr.debit td.amount {
   color: var(--red);   /* Catppuccin Red for negative amounts */
 }
+.bucket-goal-info {
+  padding: 10px 1.5em 15px 1.5em; /* Match header padding more or less */
+  border-top: 1px solid var(--surface0); /* Separator from bucket header */
+  background-color: var(--mantle); /* Slightly different background for goal section */
+  border-radius: 0 0 var(--border-radius-medium) var(--border-radius-medium); /* Round bottom corners if expanded */
+}
+.bucket-card div.bucket-header + .bucket-goal-info { /* If header is directly above */
+    border-top: 1px solid var(--surface0);
+}
+.bucket-card div.bucket-goal-info + .transactions-list { /* If goal info is directly above tx list */
+    border-top: 1px solid var(--surface0);
+    padding-top: 1em;
+}
+
+
+.goal-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: var(--peach);
+  font-size: 1.05em;
+}
+.goal-title .goal-type {
+  color: var(--text);
+}
+.goal-title .goal-period {
+  font-size: 0.85em;
+  color: var(--subtext0);
+  margin-left: 5px;
+}
+
+.goal-progress-container {
+  margin-bottom: 8px;
+}
+
+.goal-progress-bar {
+  width: 100%;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden; /* Ensures inner bar respects border-radius */
+  background-color: var(--surface0); /* Track color */
+  border: none; /* Remove default border */
+  margin-bottom: 4px;
+}
+
+/* Styling the actual progress part */
+.goal-progress-bar::-webkit-progress-bar {
+  background-color: var(--surface0);
+  border-radius: 6px;
+}
+.goal-progress-bar::-webkit-progress-value {
+  background-color: var(--green); /* Default progress color (good for savings) */
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+.goal-progress-bar::-moz-progress-bar { /* Firefox */
+  background-color: var(--green);
+  border-radius: 6px;
+  transition: width 0.3s ease;
+}
+
+/* Specific colors based on goal type and status */
+.goal-progress-bar.spending::-webkit-progress-value,
+.goal-progress-bar.spending::-moz-progress-bar {
+  background-color: var(--blue); /* Different color for spending tracking */
+}
+.goal-progress-bar.over-budget::-webkit-progress-value,
+.goal-progress-bar.over-budget::-moz-progress-bar {
+  background-color: var(--red); /* Over budget */
+}
+.goal-progress-bar.goal-met.savings::-webkit-progress-value, /* Savings goal met */
+.goal-progress-bar.goal-met.savings::-moz-progress-bar {
+  background-color: var(--sapphire); /* Or a celebratory green */
+}
+
+
+.goal-progress-text {
+  font-size: 0.9em;
+  color: var(--subtext1);
+}
+
+.goal-remaining {
+  font-size: 0.9em;
+  color: var(--text);
+}
+.goal-remaining .goal-met-text {
+  color: var(--green);
+  font-weight: bold;
+}
+.goal-remaining .over-budget-text {
+  color: var(--red);
+  font-weight: bold;
+}

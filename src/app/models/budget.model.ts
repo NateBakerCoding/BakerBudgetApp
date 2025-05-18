@@ -117,9 +117,37 @@ export interface Rule {
   filterGroup: FilterGroup; // The actual logic is a filter group
 }
 
+
+export enum GoalTimePeriodType {
+  FIXED_DATE_RANGE = 'fixed_date_range',
+  ROLLING_DAYS = 'rolling_days',
+  CURRENT_MONTH = 'current_month',
+  CURRENT_YEAR = 'current_year',
+  ALL_TIME = 'all_time'
+}
+
+export enum GoalType {
+  SAVINGS = 'savings',
+  SPENDING_LIMIT = 'spending_limit'
+}
+
+export interface BucketGoal {
+  isActive: boolean;
+  targetAmount: number;
+  goalType: GoalType;
+  periodType: GoalTimePeriodType;
+  // Optional fields based on periodType
+  startDate?: string;     // YYYY-MM-DD, for FIXED_DATE_RANGE
+  endDate?: string;       // YYYY-MM-DD, for FIXED_DATE_RANGE
+  rollingDays?: number;   // For ROLLING_DAYS
+}
+
+
+
 export interface Bucket {
   id: string;
   name: string;
   priority: number;
   rules: Array<{ ruleId: string; isActive: boolean }>;
+  goal?: BucketGoal;
 }

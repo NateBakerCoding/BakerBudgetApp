@@ -43,12 +43,65 @@
       <div *ngFor="let bucket of categorizedBuckets" class="bucket-card">
         <div class="bucket-header foldable" (click)="toggleTransactions(bucket)">
           <h3>{{ bucket.name }}</h3>
-          <div class="bucket-summary">
-            <span>Total: {{ bucket.totalAmount | currency:(bucket.transactions[0].currency || 'USD'):'symbol':'1.2-2' }}</span>
+	  <div class="bucket-summary">
+            <span>Total in Bucket: {{ bucket.totalAmount | currency:getBucketDisplayCurrency(bucket):'symbol':'1.2-2' }}</span>
             <span>({{ bucket.transactions.length }} transactions)</span>
             <span class="expand-icon">{{ bucket.expanded ? '▼' : '►' }}</span>
           </div>
         </div>
+
+        <!-- GOAL DISPLAY SECTION -->
+        <div *ngIf="bucket.goalIsActiveAndConfigured && bucket.goal" class="bucket-goal-info">
+          <div class="goal-title">
+            Goal:
+            <span class="goal-type">
+              {{ bucket.goal.goalType === GoalType.SAVINGS ? 'Save' : 'Limit Spending To' }}
+              {{ bucket.goal.targetAmount | currency:getBucketDisplayCurrency(bucket) : 'symbol':'1.2-2' }}
+            </span>
+            <span class="goal-period">({{ bucket.goalPeriodDisplayString }})</span>
+          </div>
+          
+          <div class="goal-progress-container" *ngIf="bucket.goal && bucket.goal.targetAmount != null && bucket.goal.targetAmount > 0">
+            <progress class="goal-progress-bar" 
+                      [value]="bucket.goalAmountRelevant || 0" 
+                      [max]="bucket.goal.targetAmount"
+                      [class.savings]="bucket.goal.goalType === GoalType.SAVINGS"
+                      [class.spending]="bucket.goal.goalType === GoalType.SPENDING_LIMIT"
+                      [class.over-budget]="bucket.goal.goalType === GoalType.SPENDING_LIMIT && (bucket.goalAmountRelevant || 0) > bucket.goal.targetAmount"
+                      [class.goal-met]="bucket.goalIsMetOrOnTrack">
+            </progress>
+            <div class="goal-progress-text">
+              {{ bucket.goalAmountRelevant | currency:getBucketDisplayCurrency(bucket) : 'symbol':'1.2-2' }} / 
+              {{ bucket.goal.targetAmount | currency:getBucketDisplayCurrency(bucket) : 'symbol':'1.2-2' }} 
+              ({{ bucket.goalProgressPercentage | number:'1.0-0' }}%)
+            </div>
+          </div>
+          <div *ngIf="bucket.goal && bucket.goal.targetAmount === 0 && bucket.goalAmountRelevant !== undefined" class="goal-progress-text">
+              Current: {{ bucket.goalAmountRelevant | currency:getBucketDisplayCurrency(bucket) : 'symbol':'1.2-2' }} 
+              (Target is 0)
+              <span *ngIf="bucket.goalIsMetOrOnTrack" class="goal-met-text"> ✔</span>
+          </div>
+
+          <div class="goal-remaining">
+            <ng-container *ngIf="bucket.goal.goalType === GoalType.SAVINGS">
+              <span *ngIf="!bucket.goalIsMetOrOnTrack && bucket.goalAmountRemaining !== undefined">To Save: {{ bucket.goalAmountRemaining | currency:getBucketDisplayCurrency(bucket) : 'symbol':'1.2-2' }}</span>
+              <span *ngIf="bucket.goalIsMetOrOnTrack" class="goal-met-text">Goal Achieved! 🎉</span>
+              <span *ngIf="bucket.goalIsMetOrOnTrack && (bucket.goalAmountRelevant || 0) > bucket.goal.targetAmount">
+                 (Exceeded by: {{ ((bucket.goalAmountRelevant || 0) - bucket.goal.targetAmount) | currency:getBucketDisplayCurrency(bucket) : 'symbol':'1.2-2' }})
+              </span>
+            </ng-container>
+            <ng-container *ngIf="bucket.goal.goalType === GoalType.SPENDING_LIMIT">
+              <span *ngIf="bucket.goal && (bucket.goalAmountRelevant || 0) > bucket.goal.targetAmount" class="over-budget-text">
+                Over Budget by: {{ ((bucket.goalAmountRelevant || 0) - bucket.goal.targetAmount) | currency:getBucketDisplayCurrency(bucket) : 'symbol':'1.2-2' }} 😟
+              </span>
+              <span *ngIf="bucket.goal && bucket.goalIsMetOrOnTrack && (bucket.goalAmountRelevant || 0) <= bucket.goal.targetAmount && bucket.goalAmountRemaining !== undefined">
+                Remaining in Budget: {{ bucket.goalAmountRemaining | currency:getBucketDisplayCurrency(bucket) : 'symbol':'1.2-2' }}
+              </span>
+            </ng-container>
+          </div>
+        </div>
+        <!-- END GOAL DISPLAY SECTION -->
+
         <div *ngIf="bucket.expanded" class="transactions-list">
           <div *ngIf="bucket.transactions.length > 0; else noTransactionsInBucketMessage">
             <table class="transactions-table-condensed">
