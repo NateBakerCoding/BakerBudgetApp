@@ -1,0 +1,7 @@
+[ ] - Clean up the logic on rules... Its terrible
+
+[ ] - Gives each filter a name/bank???
+
+[ ] - Expicit rule priority? 
+
+[ ] - Make dashboard less bad. <3
