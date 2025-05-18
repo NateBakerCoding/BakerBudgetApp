@@ -57,7 +57,7 @@ BakerBudgetApp is an Angular-based web application designed for personal budgeti
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/natebakercoding/bakerbudgetapp.git](https://github.com/natebakercoding/bakerbudgetapp.git)
+    git clone https://github.com/natebakercoding/bakerbudgetapp.git
     cd bakerbudgetapp
     ```
 
@@ -79,10 +79,6 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 ```bash
 ng build --configuration production
 ````
-
-## Running Unit Tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
 
 ## Usage
 
