@@ -2,19 +2,31 @@
 <div class="page-container">
   <h1>Budget Dashboard</h1>
 
-  <!-- Account Summary Section -->
+  <!-- ========================== -->
+  <!-- ACCOUNT SUMMARY SECTION    -->
+  <!-- ========================== -->
+  <!-- This section displays a summary of all connected financial accounts and their balances.
+       It can be folded/unfolded by the user.
+       It shows actual account data if `accountSummary` has items.
+       Otherwise, it shows messages depending on loading state, error state, or if SimpleFin access is not configured. -->
   <section class="dashboard-section">
+    <!-- Header for the Account Summary section, clickable to toggle visibility -->
     <div class="section-header foldable" (click)="toggleAccountSummary()">
       <h2>Account Balances</h2>
+      <!-- Icon indicates expandable/collapsible state -->
       <span class="expand-icon">{{ accountSummaryFolded ? '►' : '▼' }}</span>
     </div>
 
+    <!-- Content of the Account Summary, shown only if not folded -->
     <div *ngIf="!accountSummaryFolded">
+      <!-- Display account cards if there's data, otherwise use the #noAccounts template -->
       <div *ngIf="accountSummary.length > 0; else noAccounts" class="accounts-summary-grid">
+        <!-- Loop through each account and display its details in a card -->
         <div *ngFor="let account of accountSummary" class="account-summary-card">
           <h4>{{ account.org.name }}: {{ account.name }}</h4>
           <p>
             <strong>Balance:</strong> {{ account.balanceNum | currency:account.currency:'symbol':'1.2-2' }}
+            <!-- Show available balance if it's different from the current balance -->
             <span *ngIf="account.availableBalanceNum !== undefined && account.availableBalanceNum !== account.balanceNum" class="balance-available">
               (Avail: {{ account.availableBalanceNum | currency:account.currency:'symbol':'1.2-2' }})
             </span>
@@ -22,46 +34,73 @@
           <p class="last-updated">Last Updated: {{ account['balance-date'] | unixToDate }}</p>
         </div>
       </div>
+      <!-- Template shown when there are no accounts to display -->
       <ng-template #noAccounts>
+        <!-- Message when no data, but not loading, no error, and SF configured (implies data was fetched but empty) -->
         <p *ngIf="!isLoading && !errorMessage && hasStoredAccessDetails" class="no-data-message">
           <em>No account summary data available.</em>
         </p>
+        <!-- Message when no data and SF not configured -->
         <p *ngIf="!isLoading && !errorMessage && !hasStoredAccessDetails" class="no-data-message">
           <em>No account summary data available. Please connect to SimpleFin via the "Raw Data" page.</em>
         </p>
       </ng-template>
+      <!-- Loading indicator shown if data is being fetched and no accounts are yet available -->
       <div *ngIf="isLoading && accountSummary.length === 0" class="loading-indicator">
           <em>Loading account summary...</em>
       </div>
     </div>
   </section>
 
-  <!-- Buckets Overview Section -->
+  <!-- ========================== -->
+  <!-- BUCKETS OVERVIEW SECTION   -->
+  <!-- ========================== -->
+  <!-- This section displays all configured budget buckets, including those with categorized transactions
+       and a special bucket for "Uncategorized Transactions". -->
   <section class="dashboard-section">
     <h2>Budget Buckets</h2>
+    <!-- Display buckets if `categorizedBuckets` array has items, otherwise show #noBucketsMessage template -->
     <div *ngIf="categorizedBuckets.length > 0; else noBucketsMessage">
+      <!-- Loop through each bucket (which includes transactions and goal data) -->
       <div *ngFor="let bucket of categorizedBuckets" class="bucket-card">
+        <!-- Bucket Header: Name, total amount, transaction count, and expand/collapse toggle -->
         <div class="bucket-header foldable" (click)="toggleTransactions(bucket)">
           <h3>{{ bucket.name }}</h3>
-	  <div class="bucket-summary">
+          <div class="bucket-summary">
             <span>Total in Bucket: {{ bucket.totalAmount | currency:getBucketDisplayCurrency(bucket):'symbol':'1.2-2' }}</span>
             <span>({{ bucket.transactions.length }} transactions)</span>
+            <!-- Icon indicates expandable/collapsible state for the transaction list -->
             <span class="expand-icon">{{ bucket.expanded ? '▼' : '►' }}</span>
           </div>
         </div>
 
-        <!-- GOAL DISPLAY SECTION -->
+        <!-- ========================== -->
+        <!-- GOAL DISPLAY SECTION       -->
+        <!-- ========================== -->
+        <!-- This section displays progress towards a bucket's goal, if one is active and configured.
+             It shows the goal type (Savings or Spending Limit), target amount, period,
+             a progress bar, current sum towards the goal, and remaining amount or over-budget status. -->
+        <!-- Only show this section if the bucket has an active and configured goal. -->
         <div *ngIf="bucket.goalIsActiveAndConfigured && bucket.goal" class="bucket-goal-info">
+          <!-- Goal Title: Displays the type of goal and target amount -->
           <div class="goal-title">
             Goal:
             <span class="goal-type">
+              <!-- Dynamically sets text based on goal type (Save or Limit Spending To) -->
               {{ bucket.goal.goalType === GoalType.SAVINGS ? 'Save' : 'Limit Spending To' }}
               {{ bucket.goal.targetAmount | currency:getBucketDisplayCurrency(bucket) : 'symbol':'1.2-2' }}
             </span>
+            <!-- Displays the formatted goal period string (e.g., "This Month", "Last 30 Days") -->
             <span class="goal-period">({{ bucket.goalPeriodDisplayString }})</span>
           </div>
           
+          <!-- Goal Progress Container: Only shown if there's a target amount greater than 0.
+               For $0 targets, a simpler text display is used below. -->
           <div class="goal-progress-container" *ngIf="bucket.goal && bucket.goal.targetAmount != null && bucket.goal.targetAmount > 0">
+            <!-- HTML Progress Bar: Visually represents goal progress.
+                 - `value`: Current relevant amount towards the goal.
+                 - `max`: The target amount of the goal.
+                 - Dynamic classes for styling based on goal type, met status, or over-budget status. -->
             <progress class="goal-progress-bar" 
                       [value]="bucket.goalAmountRelevant || 0" 
                       [max]="bucket.goal.targetAmount"
@@ -70,30 +109,42 @@
                       [class.over-budget]="bucket.goal.goalType === GoalType.SPENDING_LIMIT && (bucket.goalAmountRelevant || 0) > bucket.goal.targetAmount"
                       [class.goal-met]="bucket.goalIsMetOrOnTrack">
             </progress>
+            <!-- Textual representation of progress (e.g., "$50 / $100 (50%)") -->
             <div class="goal-progress-text">
               {{ bucket.goalAmountRelevant | currency:getBucketDisplayCurrency(bucket) : 'symbol':'1.2-2' }} / 
               {{ bucket.goal.targetAmount | currency:getBucketDisplayCurrency(bucket) : 'symbol':'1.2-2' }} 
               ({{ bucket.goalProgressPercentage | number:'1.0-0' }}%)
             </div>
           </div>
+          <!-- Special text for goals with a target of 0 (e.g., "Spend $0 on X").
+               This is shown when targetAmount is explicitly 0 and relevant amount is available. -->
           <div *ngIf="bucket.goal && bucket.goal.targetAmount === 0 && bucket.goalAmountRelevant !== undefined" class="goal-progress-text">
               Current: {{ bucket.goalAmountRelevant | currency:getBucketDisplayCurrency(bucket) : 'symbol':'1.2-2' }} 
               (Target is 0)
+              <!-- Checkmark if a $0 target goal is met -->
               <span *ngIf="bucket.goalIsMetOrOnTrack" class="goal-met-text"> ✔</span>
           </div>
 
+          <!-- Goal Remaining/Status Text: Provides context about what's left or if goal is met/over budget. -->
           <div class="goal-remaining">
+            <!-- Logic for SAVINGS goals -->
             <ng-container *ngIf="bucket.goal.goalType === GoalType.SAVINGS">
+              <!-- If goal not met, show amount still to save -->
               <span *ngIf="!bucket.goalIsMetOrOnTrack && bucket.goalAmountRemaining !== undefined">To Save: {{ bucket.goalAmountRemaining | currency:getBucketDisplayCurrency(bucket) : 'symbol':'1.2-2' }}</span>
+              <!-- If goal met, show achievement message -->
               <span *ngIf="bucket.goalIsMetOrOnTrack" class="goal-met-text">Goal Achieved! 🎉</span>
+              <!-- If goal exceeded, show how much it was exceeded by -->
               <span *ngIf="bucket.goalIsMetOrOnTrack && (bucket.goalAmountRelevant || 0) > bucket.goal.targetAmount">
                  (Exceeded by: {{ ((bucket.goalAmountRelevant || 0) - bucket.goal.targetAmount) | currency:getBucketDisplayCurrency(bucket) : 'symbol':'1.2-2' }})
               </span>
             </ng-container>
+            <!-- Logic for SPENDING_LIMIT goals -->
             <ng-container *ngIf="bucket.goal.goalType === GoalType.SPENDING_LIMIT">
+              <!-- If over budget, show how much it's over by -->
               <span *ngIf="bucket.goal && (bucket.goalAmountRelevant || 0) > bucket.goal.targetAmount" class="over-budget-text">
                 Over Budget by: {{ ((bucket.goalAmountRelevant || 0) - bucket.goal.targetAmount) | currency:getBucketDisplayCurrency(bucket) : 'symbol':'1.2-2' }} 😟
               </span>
+              <!-- If on track and within budget, show remaining amount in budget -->
               <span *ngIf="bucket.goal && bucket.goalIsMetOrOnTrack && (bucket.goalAmountRelevant || 0) <= bucket.goal.targetAmount && bucket.goalAmountRemaining !== undefined">
                 Remaining in Budget: {{ bucket.goalAmountRemaining | currency:getBucketDisplayCurrency(bucket) : 'symbol':'1.2-2' }}
               </span>
@@ -102,8 +153,11 @@
         </div>
         <!-- END GOAL DISPLAY SECTION -->
 
+        <!-- Transactions List: Shown only if the bucket is expanded by the user. -->
         <div *ngIf="bucket.expanded" class="transactions-list">
+          <!-- Display transactions if any exist in this bucket, otherwise show #noTransactionsInBucketMessage template -->
           <div *ngIf="bucket.transactions.length > 0; else noTransactionsInBucketMessage">
+            <!-- Table for displaying transactions in a condensed format -->
             <table class="transactions-table-condensed">
               <thead>
                 <tr>
@@ -114,24 +168,29 @@
                 </tr>
               </thead>
               <tbody>
+                <!-- Loop through each transaction in the bucket -->
+                <!-- Apply 'debit' or 'credit' class based on transaction amount for styling -->
                 <tr *ngFor="let tx of bucket.transactions" [class.debit]="tx.amountNum !== undefined && tx.amountNum < 0" [class.credit]="tx.amountNum !== undefined && tx.amountNum >= 0">
                   <td class="tx-date">{{ tx.posted | unixToDate }}</td>
                   <td>{{ tx.payee || 'N/A' }}</td>
-                  <td class="description-cell" title="{{tx.description}}">{{ tx.description }}</td>
+                  <td class="description-cell" title="{{tx.description}}">{{ tx.description }}</td> <!-- Full description on hover -->
                   <td class="amount">{{ tx.amountNum | currency:tx.currency:'symbol':'1.2-2' }}</td>
                 </tr>
               </tbody>
             </table>
           </div>
+          <!-- Template shown when a bucket is expanded but has no transactions -->
           <ng-template #noTransactionsInBucketMessage>
             <p><em>No transactions in this bucket for the current period.</em></p>
           </ng-template>
         </div>
       </div>
     </div>
+    <!-- Template shown when no buckets are configured at all -->
     <ng-template #noBucketsMessage>
       <p *ngIf="!isLoading" class="no-data-message">No buckets configured yet. Go to <a routerLink="/setup">Setup/Config</a> to create some.</p>
     </ng-template>
+    <!-- Loading indicator shown if data is being fetched and no buckets are yet available for display -->
     <div *ngIf="isLoading && categorizedBuckets.length === 0" class="loading-indicator">
       <em>Loading buckets and transactions...</em>
     </div>

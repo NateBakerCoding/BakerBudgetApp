@@ -105,6 +105,7 @@ export type LogicalOperator = 'AND' | 'OR';
 
 export interface FilterGroup {
   id: string; // Unique ID for the filter group itself
+  name?: string; // Optional name for the filter group
   operator: LogicalOperator;
   conditions: FilterCondition[];
   subGroups: FilterGroup[]; // Allows nesting

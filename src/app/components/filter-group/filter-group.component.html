@@ -1,4 +1,12 @@
 <div class="filter-group" [style.margin-left.px]="depth * 20">
+  <div class="filter-group-name">
+    <label for="groupName_{{filterGroup.id}}">Group Name (Optional):</label>
+    <input type="text" id="groupName_{{filterGroup.id}}"
+           [(ngModel)]="filterGroup.name"
+           (ngModelChange)="onGroupNameChange()"
+           name="groupName_{{filterGroup.id}}"
+           placeholder="e.g., All Amazon Purchases">
+  </div>
   <div class="group-header">
     <label>Combine conditions with:</label>
     <select [(ngModel)]="filterGroup.operator" (ngModelChange)="onGroupOperatorChange()" name="groupOperator_{{filterGroup.id}}">
@@ -8,6 +16,14 @@
 
   <!-- Conditions -->
   <div *ngFor="let condition of filterGroup.conditions; let i = index" class="filter-condition">
+    <div class="condition-name">
+      <label for="conditionName_{{condition.id}}">Condition Name (Optional):</label>
+      <input type="text" id="conditionName_{{condition.id}}"
+             [(ngModel)]="condition.name"
+             (ngModelChange)="onConditionNameChange()"
+             name="conditionName_{{condition.id}}"
+             placeholder="e.g., Kindle Books">
+    </div>
     <select [(ngModel)]="condition.field" (ngModelChange)="onConditionChange()" name="conditionField_{{condition.id}}">
       <option *ngFor="let field of filterableFieldsList" [value]="field.id">{{ field.name }}</option>
     </select>

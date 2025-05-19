@@ -1,4 +1,29 @@
 /* src/app/components/filter-group/filter-group.component.css */
+.filter-group-name, .condition-name {
+  margin-bottom: 8px; /* Spacing for the name sections */
+}
+.filter-group-name label, .condition-name label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.9em;
+  color: var(--subtext1); /* Using a theme variable */
+  font-weight: 500;
+}
+.filter-group-name input[type="text"], .condition-name input[type="text"] {
+  width: calc(100% - 16px); /* Full width minus padding */
+  padding: 6px 8px;
+  border: 1px solid var(--surface2); /* Using theme variable */
+  border-radius: var(--border-radius-small); /* Using theme variable */
+  background-color: var(--base); /* Using theme variable */
+  color: var(--text); /* Using theme variable */
+  font-family: var(--font-family-monospace); /* Consistent font */
+  font-size: 0.9em;
+}
+.filter-group-name input[type="text"]::placeholder, .condition-name input[type="text"]::placeholder {
+    color: var(--overlay1); /* Placeholder text color */
+}
+
+
 .filter-group {
   padding: 10px;
   border: 1px solid var(--surface2); /* Catppuccin surface2 */
@@ -29,20 +54,27 @@
 
 .filter-condition {
   display: flex;
-  align-items: center;
+  flex-direction: column; /* Stack condition name above other inputs */
+  align-items: flex-start; /* Align items to the start */
   gap: 8px;
   padding: 8px 0;
   border-bottom: 1px dashed var(--overlay0); /* Catppuccin overlay0 */
+}
+.filter-condition .condition-controls { /* New div to wrap existing controls for row layout */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%; /* Ensure it takes full width */
 }
 .filter-condition:last-of-type {
   border-bottom: none;
 }
 
-.filter-condition select,
-.filter-condition input[type="text"],
-.filter-condition input[type="number"],
-.filter-condition input[type="date"],
-.filter-condition input[type="time"] {
+.filter-condition .condition-controls select,
+.filter-condition .condition-controls input[type="text"],
+.filter-condition .condition-controls input[type="number"],
+.filter-condition .condition-controls input[type="date"],
+.filter-condition .condition-controls input[type="time"] {
   padding: 6px 8px;
   background-color: var(--base); /* Catppuccin base */
   color: var(--text);
@@ -50,23 +82,31 @@
   border-radius: var(--border-radius-small);
   font-family: var(--font-family-monospace);
   font-size: 0.9em;
+  flex-grow: 1; /* Allow input fields to grow */
 }
-.filter-condition input[type="checkbox"] {
+.filter-condition .condition-controls input[type="text"][placeholder*="Value 2"] {
+    flex-grow: 0.5; /* Make Value 2 input smaller if needed */
+}
+.filter-condition .condition-controls input[type="checkbox"] {
     width: auto;
     accent-color: var(--mauve);
+    flex-grow: 0; /* Don't let checkbox grow */
 }
-.filter-condition .abs-label {
+.filter-condition .condition-controls .abs-label {
     display: flex;
     align-items: center;
     gap: 4px;
     font-size: 0.85em;
     color: var(--subtext0);
     margin-bottom: 0;
+    flex-grow: 0; /* Don't let label grow */
+    white-space: nowrap; /* Prevent label from wrapping */
 }
 
-.btn-remove {
+.btn-remove { /* This applies to both remove-condition-btn and potentially others if not overridden */
   background-color: var(--red);
   color: var(--crust);
+  flex-shrink: 0; /* Prevent button from shrinking */
   border: none;
   border-radius: 50%; /* Make it round */
   width: 24px;
